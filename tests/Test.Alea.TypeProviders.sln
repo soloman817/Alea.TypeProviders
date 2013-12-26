@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{ACD61BCD-E078-4917-8ADA-5D97C5916FFB}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test.GPUTypes", "Test.GPUTypes\Test.GPUTypes.fsproj", "{E45ABDE5-B4CE-4A74-B4B3-5BFAEA515375}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test.GPUTypes.Data.Base", "Test.GPUTypes.Data.Base\Test.GPUTypes.Data.Base.fsproj", "{49BB9806-4E08-414C-B2B2-C7999A183126}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test.GPUTypes.Data.Derived", "Test.GPUTypes.Data.Derived\Test.GPUTypes.Data.Derived.fsproj", "{D2AFAA8D-4F63-4114-AAE9-DA11DEAD8F71}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Test.GPUTypes.Data.Helper", "Test.GPUTypes.Data.Helper\Test.GPUTypes.Data.Helper.fsproj", "{15BA05A1-668F-4BEB-B637-3B2359DF0725}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E45ABDE5-B4CE-4A74-B4B3-5BFAEA515375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E45ABDE5-B4CE-4A74-B4B3-5BFAEA515375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E45ABDE5-B4CE-4A74-B4B3-5BFAEA515375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E45ABDE5-B4CE-4A74-B4B3-5BFAEA515375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49BB9806-4E08-414C-B2B2-C7999A183126}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49BB9806-4E08-414C-B2B2-C7999A183126}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49BB9806-4E08-414C-B2B2-C7999A183126}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49BB9806-4E08-414C-B2B2-C7999A183126}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2AFAA8D-4F63-4114-AAE9-DA11DEAD8F71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2AFAA8D-4F63-4114-AAE9-DA11DEAD8F71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2AFAA8D-4F63-4114-AAE9-DA11DEAD8F71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2AFAA8D-4F63-4114-AAE9-DA11DEAD8F71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15BA05A1-668F-4BEB-B637-3B2359DF0725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15BA05A1-668F-4BEB-B637-3B2359DF0725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15BA05A1-668F-4BEB-B637-3B2359DF0725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15BA05A1-668F-4BEB-B637-3B2359DF0725}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

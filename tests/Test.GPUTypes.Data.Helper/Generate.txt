@@ -1,0 +1,4 @@
+﻿namespace Test.GPUTypes.Data
+
+type Helper = Alea.TypeProviders.GPUHelperProvider<"Test.GPUTypes.Data.Base;Test.GPUTypes.Data.Derived">
+
