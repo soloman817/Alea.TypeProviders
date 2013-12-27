@@ -61,7 +61,7 @@ type IntegerEntity(package:Package, ty:Type) =
         sprintf "%s%d" name bits
 
     override this.Dump(indent) =
-        let indentstr = String.replicate indent " "
+        let indentstr = String.replicate indent "."
         printfn "%s* %s [%O]" indentstr this.Name this
 
 type FloatingPointEntity(package:Package, ty:Type) =
@@ -105,7 +105,7 @@ type FloatingPointEntity(package:Package, ty:Type) =
         sprintf "float%d" bits
 
     override this.Dump(indent) =
-        let indentstr = String.replicate indent " "
+        let indentstr = String.replicate indent "."
         printfn "%s* %s (%O)" indentstr this.Name this
 
 type ArrayEntity(package:Package, ty:Type) =
@@ -289,7 +289,7 @@ type RecordEntity(package:Package, ty:Type) as this =
         sprintf "Record(%d fields)" fields.Length
 
     override this.Dump(indent) =
-        let indentstr = String.replicate indent " "
+        let indentstr = String.replicate indent "."
         printfn "%s* %s (%O)" indentstr this.Name this
 
     override this.Generate() =

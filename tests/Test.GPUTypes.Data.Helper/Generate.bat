@@ -1,7 +1,7 @@
 copy /Y ..\..\..\..\bin\* .
 copy /Y Generate.txt Generate.fs
 
-"C:\Program Files (x86)\Microsoft SDKs\F#\3.0\Framework\v4.0\fsc.exe"^
+"%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0\fsc.exe"^
  -o:Test.GPUTypes.Data.Helper.dll^
  --noframework^
  --doc:Test.GPUTypes.Data.Helper.XML^

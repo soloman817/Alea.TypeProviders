@@ -56,7 +56,7 @@ and [<AbstractClass>] Entity(package:Package, ty:Type) =
 
     abstract Dump : int -> unit
     default this.Dump(ident) =
-        let indentstr = String.replicate ident " "
+        let indentstr = String.replicate ident "."
         printfn "%s* %s" indentstr this.Name
 
     abstract Initialize : unit -> unit
@@ -156,10 +156,10 @@ and Package(parent:Package option, name:string) as this =
 
     member this.Dump(?indent:int) =
         let indent = defaultArg indent 0
-        let indentstr = String.replicate indent " "
+        let indentstr = String.replicate indent "."
         printfn "%s%s" indentstr this.Name
-        entities.Values |> Seq.iter (fun entity -> entity.Dump(indent + 2))
-        children.Values |> Seq.iter (fun package -> package.Dump(indent + 4))
+        entities.Values |> Seq.iter (fun entity -> entity.Dump(indent + 1))
+        children.Values |> Seq.iter (fun package -> package.Dump(indent + 1))
 
     abstract ProvidedHostType : ProvidedTypeDefinition
     default this.ProvidedHostType = providedHostType.Value
