@@ -16,7 +16,7 @@ open Alea.TypeProviders.GPUHelperDirectives
 do ()
 
 type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namespaces:Set<string>, cfg:TypeProviderConfig) =
-    let debug = true
+    let debug = false
     let mutable optDllPath : string option = None
     let mutable optProvidedType : ProvidedTypeDefinition option = None
 
