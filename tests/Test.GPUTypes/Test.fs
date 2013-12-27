@@ -141,3 +141,108 @@ let ``Combine blob`` () =
     program.Run logger (1<<<20)
     //program.Run logger (1<<<24)
     logger.DumpLogs()
+
+[<Test>]
+let ``Array field blob``() =
+    let template = cuda {
+        let! kernel =
+            <@ fun (output1:deviceptr<float>) (output2:deviceptr<int>) (input:BaseHelper.FloatNestedArrayHelper.TransposedSeq) ->
+                let start = blockIdx.x * blockDim.x + threadIdx.x
+                let stride = gridDim.x * blockDim.x
+                let mutable i = start
+                let n = input.Length
+                while i < n do
+                    let mutable sum = input.Offset1.[i]
+                    for j = 0 to input.Array1.Length(i) - 1 do
+                        sum <- sum + input.Array1.[i, j]
+                    output1.[i] <- sum
+
+                    let mutable sum = input.Offset2.[i]
+                    for j = 0 to input.Array2.Length(i) - 1 do
+                        sum <- sum + input.Array2.[i, j]
+                    output2.[i] <- sum
+
+                    i <- i + stride @>
+            |> Compiler.DefineKernel
+
+        return Entry(fun program ->
+            let worker = program.Worker
+            let kernel = program.Apply kernel
+            let lp = LaunchParam(32, 256)
+
+            let run (logger:ITimingLogger) =
+                use blob = new Blob(worker, logger)
+
+                let input' = Base.FloatNestedArray.RandomArray(1000)
+                let output1' = input' |> Array.map (fun x -> x.Offset1 + (x.Array1 |> Array.sum))
+                let output2' = input' |> Array.map (fun x -> x.Offset2 + (x.Array2 |> Array.sum))
+
+                let input = BaseHelper.FloatNestedArrayHelper.BlobTransposedSeq.Create(blob, input')
+                let output1 = blob.CreateArray<float>(input.Length)
+                let output2 = blob.CreateArray<int>(input.Length)
+
+                kernel.Launch lp output1.Ptr output2.Ptr input.Device
+                assertArrayEqual (Some 1e-7) output1' (output1.Gather())
+                assertArrayEqual None output2' (output2.Gather())
+                TestUtil.testLaunchingTime worker "3" 5000 input.Device
+
+            run ) }
+
+    let worker = Worker.Default
+    use program = template |> Compiler.load worker
+    let logger = TimingLogger("Blob")
+    worker.Eval <| fun _ -> program.Run logger
+    logger.DumpLogs()
+
+[<Test>]
+let ``Generic Array field blob``() =
+    let template = cuda {
+        let! kernel =
+            <@ fun (output1:deviceptr<float>) (output2:deviceptr<int>) (input:BaseHelper.NestedArrayByDoubleAndInt32Helper.TransposedSeq) ->
+                let start = blockIdx.x * blockDim.x + threadIdx.x
+                let stride = gridDim.x * blockDim.x
+                let mutable i = start
+                let n = input.Length
+                while i < n do
+                    let mutable sum = input.Offset1.[i]
+                    for j = 0 to input.Array1.Length(i) - 1 do
+                        sum <- sum + input.Array1.[i, j]
+                    output1.[i] <- sum
+
+                    let mutable sum = input.Offset2.[i]
+                    for j = 0 to input.Array2.Length(i) - 1 do
+                        sum <- sum + input.Array2.[i, j]
+                    output2.[i] <- sum
+
+                    i <- i + stride @>
+            |> Compiler.DefineKernel
+
+        return Entry(fun program ->
+            let worker = program.Worker
+            let kernel = program.Apply kernel
+            let lp = LaunchParam(32, 256)
+
+            let run (logger:ITimingLogger) =
+                use blob = new Blob(worker, logger)
+
+                let input' = Base.NestedArray<float, int>.RandomArray(1000)
+                let output1' = input' |> Array.map (fun x -> x.Offset1 + (x.Array1 |> Array.sum))
+                let output2' = input' |> Array.map (fun x -> x.Offset2 + (x.Array2 |> Array.sum))
+
+                let input = BaseHelper.NestedArrayByDoubleAndInt32Helper.BlobTransposedSeq.Create(blob, input')
+                let output1 = blob.CreateArray<float>(input.Length)
+                let output2 = blob.CreateArray<int>(input.Length)
+
+                kernel.Launch lp output1.Ptr output2.Ptr input.Device
+                assertArrayEqual (Some 1e-7) output1' (output1.Gather())
+                assertArrayEqual None output2' (output2.Gather())
+                TestUtil.testLaunchingTime worker "3" 5000 input.Device
+
+            run ) }
+
+    let worker = Worker.Default
+    use program = template |> Compiler.load worker
+    let logger = TimingLogger("Blob")
+    worker.Eval <| fun _ -> program.Run logger
+    logger.DumpLogs()
+

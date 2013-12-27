@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Alea.CUDA">
-      <HintPath>..\packages\Alea.cuBase.1.2.723\lib\net40\Alea.CUDA.dll</HintPath>
+      <HintPath>..\packages\Alea.cuBase.1.2.726\lib\net40\Alea.CUDA.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Alea.TypeProviders.GPUHelperDirectives">

@@ -108,6 +108,33 @@ type FloatingPointEntity(package:Package, ty:Type) =
         let indentstr = String.replicate indent " "
         printfn "%s* %s (%O)" indentstr this.Name this
 
+type ArrayEntity(package:Package, ty:Type) =
+    inherit Entity(package, ty)
+
+    let elementType = ty.GetElementType()
+
+    static member Register(registry:EntityRegistry) =
+        let filter (ty:Type) =
+            ty.IsArray && ty.GetArrayRank() = 1
+
+        let create (package:Package) (ty:Type) =
+            ArrayEntity(package, ty) :> Entity
+
+        registry.Register(filter, create)
+
+    override this.TransposedSeqType =
+        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+
+    override this.BlobTransposedSeqType =
+        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+
+    override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) =
+        let mtd = blobExpr.Type.GetMethod("CreateArrayCompactSeq").MakeGenericMethod([| elementType |])
+        Expr.Call(blobExpr, mtd, hostExpr :: [])
+
+    override this.InvokeBlobTransposedSeqTrigger(bmemExpr) =
+        bmemExpr
+
 type RecordEntity(package:Package, ty:Type) as this =
     inherit Entity(package, ty)
 

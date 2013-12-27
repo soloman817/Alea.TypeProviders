@@ -16,7 +16,7 @@ open Alea.TypeProviders.GPUHelperDirectives
 do ()
 
 type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namespaces:Set<string>, cfg:TypeProviderConfig) =
-    let debug = false
+    let debug = true
     let mutable optDllPath : string option = None
     let mutable optProvidedType : ProvidedTypeDefinition option = None
 
@@ -42,6 +42,7 @@ type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namesp
             let registry = EntityRegistry()
             IntegerEntity.Register(registry)
             FloatingPointEntity.Register(registry)
+            ArrayEntity.Register(registry)
             RecordEntity.Register(registry)
 
             optDllPath <- debug |> function

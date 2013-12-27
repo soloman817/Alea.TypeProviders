@@ -29,4 +29,42 @@ type Pair<'T1, 'T2> =
         Second : 'T2
     }
 
+[<GenGPUHelper>]
+type FloatNestedArray =
+    {
+        Offset1 : float
+        Offset2 : int
+        Array1 : float[]
+        Array2 : int[]
+    }
 
+    static member RandomArray(length:int) =
+        Array.init<FloatNestedArray> length (fun i ->
+            let n1 = TestUtil.genRandomSInt32 20 100 ()
+            let n2 = TestUtil.genRandomSInt32 20 100 ()
+            {
+                Offset1 = TestUtil.genRandomDouble -10.0 10.0 i
+                Offset2 = TestUtil.genRandomSInt32 -10 10 i
+                Array1 = Array.init n1 (TestUtil.genRandomDouble -10.0 10.0)
+                Array2 = Array.init n2 (TestUtil.genRandomSInt32 -10 10)
+            })
+
+[<GenGPUHelperBy([| typeof<float>; typeof<int> |])>]
+type NestedArray<'T1, 'T2> =
+    {
+        Offset1 : 'T1
+        Offset2 : 'T2
+        Array1 : 'T1[]
+        Array2 : 'T2[]
+    }
+
+    static member RandomArray(length:int) =
+        Array.init<NestedArray<float, int>> length (fun i ->
+            let n1 = TestUtil.genRandomSInt32 20 100 ()
+            let n2 = TestUtil.genRandomSInt32 20 100 ()
+            {
+                Offset1 = TestUtil.genRandomDouble -10.0 10.0 i
+                Offset2 = TestUtil.genRandomSInt32 -10 10 i
+                Array1 = Array.init n1 (TestUtil.genRandomDouble -10.0 10.0)
+                Array2 = Array.init n2 (TestUtil.genRandomSInt32 -10 10)
+            })
