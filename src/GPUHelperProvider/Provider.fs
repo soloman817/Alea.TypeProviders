@@ -26,6 +26,19 @@ type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namesp
 
     member this.Generate() =
         if optProvidedType.IsNone then
+            let assemblies = cfg.ReferencedAssemblies |> Array.map Path.GetFullPath
+            printfn "Parsing assemblies from:"
+            for assembly in assemblies do printfn "* %s" assembly
+            let types =
+                assemblies
+                |> Array.map Assembly.LoadFile
+                |> Array.map (fun assembly -> assembly.GetTypes())
+                |> Array.concat
+                |> Array.filter (fun ty -> ty.Namespace <> null)
+                |> Array.filter (fun ty -> namespaces.Contains(ty.Namespace))
+                |> Array.filter (Util.hasAttribute typeof<GenGPUHelperAttribute> true) 
+            printfn "Got %d types." types.Length
+
             let registry = EntityRegistry()
             IntegerEntity.Register(registry)
             FloatingPointEntity.Register(registry)
@@ -36,24 +49,14 @@ type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namesp
                 | false -> Path.ChangeExtension(Path.GetTempFileName(), ".dll") |> Some
             let dllPath = optDllPath.Value
             let providedAssembly = ProvidedAssembly(dllPath)
-            printfn "Generating RootPackageHostType (%s) ..." name
             let hostType = ProvidedTypeDefinition(thisAssembly, providedNamespace, name, Some typeof<obj>, IsErased = false, HideObjectMethods = true)
             providedAssembly.AddTypes(hostType :: [])
 
             let rootPackage = RootPackage(name, registry, hostType)
-
-            cfg.ReferencedAssemblies
-            |> Array.map Assembly.LoadFile
-            |> Array.map (fun assembly -> assembly.GetTypes())
-            |> Array.concat
-            |> Array.filter (fun ty -> ty.Namespace <> null)
-            |> Array.filter (fun ty -> namespaces.Contains(ty.Namespace))
-            |> Array.filter (Util.hasAttribute typeof<GenerateAttribute> true) 
-            |> Array.iter rootPackage.InstallEntity
-
+            types |> Array.iter rootPackage.InstallEntity
             rootPackage.Dump()
+            printfn "Generating RootPackageHostType (%s) ..." name
             rootPackage.Entities |> Seq.iter (fun entity -> entity.Generate())
-
             optProvidedType <- rootPackage.ProvidedHostType |> Some
 
     member this.Dispose(disposing:bool) =
@@ -67,7 +70,7 @@ type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namesp
 type Provider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
 
-    do Util.dumpTypeProviderConfig cfg
+    //do Util.dumpTypeProviderConfig cfg
 
     let thisAssembly = Assembly.GetExecutingAssembly()
     let providedNamespace = "Alea.TypeProviders"

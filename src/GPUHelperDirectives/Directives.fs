@@ -2,7 +2,10 @@
 
 open System
 
-[<AbstractClass>]
-type GenerateAttribute() = inherit Attribute()
+[<AttributeUsage(AttributeTargets.All, AllowMultiple = false)>]
+type GenGPUHelperAttribute() = inherit Attribute()
 
-type TransposedSeqAttribute() = inherit GenerateAttribute()
+[<AttributeUsage(AttributeTargets.All, AllowMultiple = true)>]
+type GenGPUHelperByAttribute(tys:Type[]) =
+    inherit GenGPUHelperAttribute()
+    member this.TypeArguments = tys

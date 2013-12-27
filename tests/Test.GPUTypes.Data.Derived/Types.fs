@@ -5,7 +5,7 @@ open Alea.CUDA.Utilities
 open Alea.TypeProviders.GPUHelperDirectives
 open Test.GPUTypes.Data.Base
 
-[<Record;TransposedSeq>]
+[<Record;GenGPUHelper>]
 type FloatPairAndTriple =
     {
         Pair : FloatPair

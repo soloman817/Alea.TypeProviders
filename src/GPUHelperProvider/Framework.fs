@@ -8,6 +8,7 @@ open System.Text.RegularExpressions
 open Microsoft.FSharp.Quotations
 open Alea.TypeProviders.Utilities
 open Alea.TypeProviders.Utilities.ProvidedTypes
+open Alea.TypeProviders.GPUHelperDirectives
 
 type [<Sealed>] EntityRegistry() =
     let registry = List<(Type -> bool) * (Package -> Type -> Entity)>()
@@ -36,8 +37,20 @@ and [<AbstractClass>] Entity(package:Package, ty:Type) =
 
     override this.ToString() = sprintf "[%s]" ty.FullName
 
-    abstract Name : string
-    default this.Name = ty.Name
+    static member NameOf(package:Package, ty:Type) =
+        match ty.IsGenericType with
+        | false -> ty.Name
+        | true ->
+            let name = ty.Name.Substring(0, ty.Name.IndexOf("`"))
+            ty.GetGenericArguments()
+            |> Array.map (fun ty ->
+                let entity : Entity = package.FindEntity(ty)
+                let name : string = entity.Name
+                name.Substring(0, 1).ToUpper() + name.Substring(1))
+            |> String.concat "And"
+            |> sprintf "%sBy%s" name
+
+    member this.Name = Entity.NameOf(package, ty)
 
     member this.Path = package.Path
 
@@ -52,18 +65,21 @@ and [<AbstractClass>] Entity(package:Package, ty:Type) =
     abstract Generate : unit -> unit
     default this.Generate() = ()
 
-    abstract TransposedSeqType : Type
+    abstract TransposedSeqType : Type // 'TranSeq
     default this.TransposedSeqType = failwithf "%O.TransposedSeqType not supported." this
 
-    abstract InvokeTransposedSeqTypeBlobCreate : Expr * Expr -> Expr  // (blobExpr:Blob, hostExpr:'T[]) -> (bmemExpr:obj)
-    default this.InvokeTransposedSeqTypeBlobCreate(_,_) = failwithf "%O.InvokeTransposedSeqTypeBlobCreate not supported." this
+    abstract BlobTransposedSeqType : Type // 'BlobTranSeq
+    default this.BlobTransposedSeqType = failwithf "%O.BlobTransposedSeqType not supported." this
 
-    abstract InvokeTransposedSeqTypeBlobTrigger : Expr -> Expr // (bmemExpr:obj) -> (deviceExpr:'TSeq)
-    default this.InvokeTransposedSeqTypeBlobTrigger(_) = failwithf "%O.InvokeTransposedSeqTypeBlobTrigger not supported." this
+    abstract InvokeBlobTransposedSeqCreate : Expr * Expr -> Expr  // (blobExpr:Blob, hostExpr:'T[]) -> (bmemExpr:'BlobTranSeq)
+    default this.InvokeBlobTransposedSeqCreate(_,_) = failwithf "%O.InvokeBlobTransposedSeqCreate not supported." this
+
+    abstract InvokeBlobTransposedSeqTrigger : Expr -> Expr // (bmemExpr:'BlobTranSeq) -> (deviceExpr:'TranSeq)
+    default this.InvokeBlobTransposedSeqTrigger(_) = failwithf "%O.InvokeBlobTransposedSeqTrigger not supported." this
 
 and Package(parent:Package option, name:string) as this =
     let children = Dictionary<string, Package>()
-    let entities = Dictionary<Guid, Entity>()
+    let entities = Dictionary<string, Entity>()
 
     let providedHostType = Lazy.Create <| fun _ -> 
         printfn "Generating PackageHostType (%s) ..." this.Path
@@ -117,10 +133,11 @@ and Package(parent:Package option, name:string) as this =
 
     member private this.GetEntity(ty:Type) =
         if ty.Namespace <> this.Path then failwith "Namespace not match path."
-        if entities.ContainsKey(ty.GUID) then entities.[ty.GUID]
+        let tyn = Entity.NameOf(this, ty)
+        if entities.ContainsKey(tyn) then entities.[tyn]
         else
             let entity = this.EntityRegistry.CreateEntity(this, ty)
-            entities.Add(ty.GUID, entity)
+            entities.Add(tyn, entity)
             entity.Initialize()
             entity
 
@@ -128,7 +145,14 @@ and Package(parent:Package option, name:string) as this =
         this.FindPackage(ty.Namespace).GetEntity(ty)
 
     member this.InstallEntity(ty:Type) =
-        this.FindEntity(ty) |> ignore
+        if ty.IsGenericTypeDefinition then
+            ty.GetCustomAttributes(typeof<GenGPUHelperByAttribute>, false)
+            |> Array.map (fun attr -> (attr :?> GenGPUHelperByAttribute).TypeArguments)
+            |> Array.map (fun typeArguments -> ty.MakeGenericType(typeArguments))
+            |> Array.iter (fun ty -> this.InstallEntity(ty))
+        else
+            //printfn "Installing %O ... " ty
+            this.FindEntity(ty) |> ignore
 
     member this.Dump(?indent:int) =
         let indent = defaultArg indent 0

@@ -43,11 +43,3 @@ type GPUObject() = class end
 
 type TransposeSeq() = inherit GPUObject()
 
-[<AbstractClass>]
-type BlobMemory() = class end
-
-type TransposedSeqBlobMemory(length:int, bmems:obj[]) =
-    inherit BlobMemory()
-    member this.Length = length
-    member this.BlobMemories = bmems
-
