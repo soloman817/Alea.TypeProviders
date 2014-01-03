@@ -68,3 +68,24 @@ type NestedArray<'T1, 'T2> =
                 Array1 = Array.init n1 (TestUtil.genRandomDouble -10.0 10.0)
                 Array2 = Array.init n2 (TestUtil.genRandomSInt32 -10 10)
             })
+
+[<GenGPUHelper>]
+type FloatNestedEqualLengthArray =
+    {
+        Offset1 : float
+        Offset2 : int
+        [<EqualLengthArray>] Array1 : float[]
+        [<EqualLengthArray>] Array2 : int[]
+    }
+
+    static member RandomArray(length:int) =
+        let n1 = TestUtil.genRandomSInt32 20 100 ()
+        let n2 = TestUtil.genRandomSInt32 20 100 ()
+        Array.init<FloatNestedEqualLengthArray> length (fun i ->
+            {
+                Offset1 = TestUtil.genRandomDouble -10.0 10.0 i
+                Offset2 = TestUtil.genRandomSInt32 -10 10 i
+                Array1 = Array.init n1 (TestUtil.genRandomDouble -10.0 10.0)
+                Array2 = Array.init n2 (TestUtil.genRandomSInt32 -10 10)
+            })
+

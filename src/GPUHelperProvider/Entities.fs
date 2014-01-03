@@ -128,6 +128,13 @@ type ArrayEntity(package:Package, ty:Type) =
     override this.BlobTransposedSeqType =
         typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
 
+    member this.EqualLengthTransposedSeqType =
+        printfn "I'm here now! EuqalLength of %O[]" elementType
+        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+
+    member this.EqualLengthBlobTransposedSeqType =
+        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+
     override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) =
         let mtd = blobExpr.Type.GetMethod("CreateArrayCompactSeq").MakeGenericMethod([| elementType |])
         Expr.Call(blobExpr, mtd, hostExpr :: [])
@@ -188,7 +195,16 @@ type RecordEntity(package:Package, ty:Type) as this =
         // fields
         let fields = fields |> List.map (fun field ->
             let fieldName = sprintf "_%s" field.Name
-            let fieldType = package.FindEntity(field.PropertyType).TransposedSeqType
+            let entity = package.FindEntity(field.PropertyType)
+            let hasEqualLengthArrayAttribute =
+                let attributes = field.GetCustomAttributes(typeof<EqualLengthArrayAttribute>, false)
+                match attributes.Length with
+                | 0 -> false
+                | _ -> true
+            let fieldType = 
+                match hasEqualLengthArrayAttribute, entity with
+                | true, (:? ArrayEntity as entity) -> entity.EqualLengthTransposedSeqType
+                | _ -> entity.TransposedSeqType
             ProvidedField(fieldName, fieldType))
         let fields = ProvidedField("_Length", typeof<int>) :: fields
         providedTransposedSeqType.AddMembers fields
