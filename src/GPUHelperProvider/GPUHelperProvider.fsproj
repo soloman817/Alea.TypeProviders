@@ -57,6 +57,10 @@ copy /Y "$(TargetDir)*" "$(ProjectDir)..\..\bin"</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="..\..\SolutionInfo.fs">
+      <Link>SolutionInfo.fs</Link>
+    </Compile>
     <Compile Include="Framework.fs" />
     <Compile Include="Entities.fs" />
     <Compile Include="Provider.fs" />

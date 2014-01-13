@@ -50,6 +50,10 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="..\..\SolutionInfo.fs">
+      <Link>SolutionInfo.fs</Link>
+    </Compile>
     <Compile Include="ProvidedTypes.fs" />
     <Compile Include="Util.fs" />
     <None Include="FSharp.Core.optdata">
