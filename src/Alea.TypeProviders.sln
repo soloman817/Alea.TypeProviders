@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Utilities", "Utilities\Utilities.fsproj", "{60A7D283-4E87-43F3-A2F1-26443029F1B7}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GPUHelperDirectives", "GPUHelperDirectives\GPUHelperDirectives.fsproj", "{42E28EB7-EE35-4CD0-ABEF-20EF843BA80C}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GPUHelperDirectives", "GPUHelperDirectives\GPUHelperDirectives.fsproj", "{EBE6D34D-FB27-480C-936B-6866BED597B6}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GPUHelperProvider", "GPUHelperProvider\GPUHelperProvider.fsproj", "{DA30E2A3-13EE-477B-B95E-71FBA59B1F1F}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GPUHelperProvider", "GPUHelperProvider\GPUHelperProvider.fsproj", "{CD59F63C-FCF5-46D6-84EF-B3775DD2C3A6}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Utilities", "Utilities\Utilities.fsproj", "{D7AE4A89-E002-4A85-A1D9-E6AC9BBC1189}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A3DEE5C1-ECAD-4761-9407-63EB4E547F02}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{CD74F6F6-ED7D-49F5-A8AA-CB15A822DEBF}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
@@ -20,18 +22,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{60A7D283-4E87-43F3-A2F1-26443029F1B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{60A7D283-4E87-43F3-A2F1-26443029F1B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{60A7D283-4E87-43F3-A2F1-26443029F1B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{60A7D283-4E87-43F3-A2F1-26443029F1B7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBE6D34D-FB27-480C-936B-6866BED597B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EBE6D34D-FB27-480C-936B-6866BED597B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EBE6D34D-FB27-480C-936B-6866BED597B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EBE6D34D-FB27-480C-936B-6866BED597B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CD59F63C-FCF5-46D6-84EF-B3775DD2C3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CD59F63C-FCF5-46D6-84EF-B3775DD2C3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CD59F63C-FCF5-46D6-84EF-B3775DD2C3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CD59F63C-FCF5-46D6-84EF-B3775DD2C3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42E28EB7-EE35-4CD0-ABEF-20EF843BA80C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42E28EB7-EE35-4CD0-ABEF-20EF843BA80C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42E28EB7-EE35-4CD0-ABEF-20EF843BA80C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42E28EB7-EE35-4CD0-ABEF-20EF843BA80C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA30E2A3-13EE-477B-B95E-71FBA59B1F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA30E2A3-13EE-477B-B95E-71FBA59B1F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA30E2A3-13EE-477B-B95E-71FBA59B1F1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA30E2A3-13EE-477B-B95E-71FBA59B1F1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7AE4A89-E002-4A85-A1D9-E6AC9BBC1189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7AE4A89-E002-4A85-A1D9-E6AC9BBC1189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7AE4A89-E002-4A85-A1D9-E6AC9BBC1189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7AE4A89-E002-4A85-A1D9-E6AC9BBC1189}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

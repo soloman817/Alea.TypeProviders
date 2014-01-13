@@ -65,17 +65,17 @@ and [<AbstractClass>] Entity(package:Package, ty:Type) =
     abstract Generate : unit -> unit
     default this.Generate() = ()
 
-    abstract TransposedSeqType : Type // 'TranSeq
-    default this.TransposedSeqType = failwithf "%O.TransposedSeqType not supported." this
+    abstract GetTransposedSeqType : Attribute seq -> Type // 'TranSeq
+    default this.GetTransposedSeqType(_) = failwithf "%O.GetTransposedSeqType not implemented." this
 
-    abstract BlobTransposedSeqType : Type // 'BlobTranSeq
-    default this.BlobTransposedSeqType = failwithf "%O.BlobTransposedSeqType not supported." this
+    abstract GetBlobTransposedSeqType : Attribute seq -> Type // 'BlobTranSeq
+    default this.GetBlobTransposedSeqType(_) = failwithf "%O.BlobTransposedSeqType not supported." this
 
-    abstract InvokeBlobTransposedSeqCreate : Expr * Expr -> Expr  // (blobExpr:Blob, hostExpr:'T[]) -> (bmemExpr:'BlobTranSeq)
-    default this.InvokeBlobTransposedSeqCreate(_,_) = failwithf "%O.InvokeBlobTransposedSeqCreate not supported." this
+    abstract InvokeBlobTransposedSeqCreate : Type * Expr * Expr -> Expr  // (blobExpr:Blob, hostExpr:'T[]) -> (bmemExpr:'BlobTranSeq)
+    default this.InvokeBlobTransposedSeqCreate(_,_,_) = failwithf "%O.InvokeBlobTransposedSeqCreate not supported." this
 
-    abstract InvokeBlobTransposedSeqTrigger : Expr -> Expr // (bmemExpr:'BlobTranSeq) -> (deviceExpr:'TranSeq)
-    default this.InvokeBlobTransposedSeqTrigger(_) = failwithf "%O.InvokeBlobTransposedSeqTrigger not supported." this
+    abstract InvokeBlobTransposedSeqTrigger : Type * Expr -> Expr // (bmemExpr:'BlobTranSeq) -> (deviceExpr:'TranSeq)
+    default this.InvokeBlobTransposedSeqTrigger(_,_) = failwithf "%O.InvokeBlobTransposedSeqTrigger not supported." this
 
 and Package(parent:Package option, name:string) as this =
     let children = Dictionary<string, Package>()
