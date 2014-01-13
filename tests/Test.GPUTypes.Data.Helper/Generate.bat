@@ -1,7 +1,12 @@
 copy /Y ..\..\..\..\bin\* .
 copy /Y Generate.txt Generate.fs
 
-"%ProgramFiles%\Microsoft SDKs\F#\3.0\Framework\v4.0\fsc.exe"^
+set ProgFiles86Root=%ProgramFiles(x86)%
+if not "%ProgFiles86Root%"=="" GOTO win64
+set ProgFiles86Root=%ProgramFiles%
+:win64
+
+"%ProgFiles86Root%\Microsoft SDKs\F#\3.1\Framework\v4.0\fsc.exe"^
  -o:Test.GPUTypes.Data.Helper.dll^
  --noframework^
  --doc:Test.GPUTypes.Data.Helper.XML^

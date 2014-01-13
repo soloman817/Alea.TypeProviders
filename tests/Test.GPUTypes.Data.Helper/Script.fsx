@@ -10,6 +10,3 @@
 let namespaces = "Test.GPUTypes.Data.Base;Test.GPUTypes.Data.Derived"
 
 type GPUHelper = Alea.TypeProviders.GPUHelperProvider<namespaces>
-
-
-
