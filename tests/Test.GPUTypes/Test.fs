@@ -252,13 +252,14 @@ let ``Equal length array field blob``() =
         let! kernel =
             <@ fun (output1:deviceptr<float>) (output2:deviceptr<int>) (input:BaseHelper.FloatNestedEqualLengthArrayHelper.TransposedSeq) ->
                 __debug(input.Array1)
+                __debug(input.Array2)
                 let start = blockIdx.x * blockDim.x + threadIdx.x
                 let stride = gridDim.x * blockDim.x
                 let mutable i = start
                 let n = input.Length
                 while i < n do
                     let mutable sum = input.Offset1.[i]
-                    for j = 0 to input.Array1.Length(i) - 1 do
+                    for j = 0 to input.Array1.Length - 1 do
                         sum <- sum + input.Array1.[i, j]
                     output1.[i] <- sum
 

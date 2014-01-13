@@ -36,7 +36,7 @@ type Helper(thisAssembly:Assembly, providedNamespace:string, name:string, namesp
                 |> Array.concat
                 |> Array.filter (fun ty -> ty.Namespace <> null)
                 |> Array.filter (fun ty -> namespaces.Contains(ty.Namespace))
-                |> Array.filter (Util.hasAttribute typeof<GenGPUHelperAttribute> true) 
+                |> Array.filter (fun ty -> Util.AttributeHelper.HasAttribute(ty, typeof<GenGPUHelperAttribute>, true)) 
             printfn "Got %d types." types.Length
 
             let registry = EntityRegistry()

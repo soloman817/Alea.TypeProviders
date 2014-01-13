@@ -4,11 +4,16 @@ open System
 open System.Reflection
 open Microsoft.FSharp.Core.CompilerServices
 
-let hasAttribute (attrType:Type) (isInherit:bool) (ty:Type) =
-    let attrs = ty.GetCustomAttributes(attrType, isInherit)
-    match attrs.Length with
-    | 0 -> false
-    | _ -> true
+type [<Sealed>] AttributeHelper private () =
+    
+    static member HasAttribute(ty:Type, attrType:Type, isInherit:bool) =
+        let attrs = ty.GetCustomAttributes(attrType, isInherit)
+        match attrs.Length with
+        | 0 -> false
+        | _ -> true
+
+    static member HasAttribute(attrs:Attribute seq, attrType:Type) =
+        attrs |> Seq.exists (fun attr -> attr.GetType().GUID = attrType.GUID)
 
 let dumpTypeProviderConfig(cfg:TypeProviderConfig) =
     printfn "TypeProviderConfig ==========="

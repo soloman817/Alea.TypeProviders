@@ -10,4 +10,4 @@ type GenGPUHelperByAttribute(tys:Type[]) =
     inherit GenGPUHelperAttribute()
     member this.TypeArguments = tys
 
-type EqualLengthArrayAttribute() = inherit Attribute()
+type EqualLengthArraySeqAttribute() = inherit Attribute()

@@ -38,13 +38,13 @@ type IntegerEntity(package:Package, ty:Type) =
 
         registry.Register(filter, create)
 
-    override this.TransposedSeqType =
+    override this.GetTransposedSeqType(_) =
         typedefof<deviceptr<_>>.MakeGenericType([| ty |])
 
-    override this.BlobTransposedSeqType =
+    override this.GetBlobTransposedSeqType(_) =
         typedefof<BlobArray<_>>.MakeGenericType([| ty |])
 
-    override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) =
+    override this.InvokeBlobTransposedSeqCreate(bmemType, blobExpr, hostExpr) =
         let mtds =
             blobExpr.Type.GetMethods()
             |> Array.filter (fun mtd -> mtd.Name = "CreateArray")
@@ -53,7 +53,7 @@ type IntegerEntity(package:Package, ty:Type) =
         let mtd = mtds.[0].MakeGenericMethod([| ty |])
         Expr.Call(blobExpr, mtd, hostExpr :: [])
        
-    override this.InvokeBlobTransposedSeqTrigger(bmemExpr) =
+    override this.InvokeBlobTransposedSeqTrigger(deviceType, bmemExpr) =
         Expr.PropertyGet(bmemExpr, bmemExpr.Type.GetProperty("Ptr"))
 
     override this.ToString() =
@@ -83,13 +83,13 @@ type FloatingPointEntity(package:Package, ty:Type) =
 
         registry.Register(filter, create)
 
-    override this.TransposedSeqType =
+    override this.GetTransposedSeqType(_) =
         typedefof<deviceptr<_>>.MakeGenericType([| ty |])
         
-    override this.BlobTransposedSeqType =
+    override this.GetBlobTransposedSeqType(_) =
         typedefof<BlobArray<_>>.MakeGenericType([| ty |])
 
-    override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) =
+    override this.InvokeBlobTransposedSeqCreate(bmemType, blobExpr, hostExpr) =
         let mtds =
             blobExpr.Type.GetMethods()
             |> Array.filter (fun mtd -> mtd.Name = "CreateArray")
@@ -98,7 +98,7 @@ type FloatingPointEntity(package:Package, ty:Type) =
         let mtd = mtds.[0].MakeGenericMethod([| ty |])
         Expr.Call(blobExpr, mtd, hostExpr :: [])
        
-    override this.InvokeBlobTransposedSeqTrigger(bmemExpr) =
+    override this.InvokeBlobTransposedSeqTrigger(deviceType, bmemExpr) =
         Expr.PropertyGet(bmemExpr, bmemExpr.Type.GetProperty("Ptr"))
        
     override this.ToString() =
@@ -122,24 +122,22 @@ type ArrayEntity(package:Package, ty:Type) =
 
         registry.Register(filter, create)
 
-    override this.TransposedSeqType =
-        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+    override this.GetTransposedSeqType(attrs) =
+        match Util.AttributeHelper.HasAttribute(attrs, typeof<EqualLengthArraySeqAttribute>) with
+        | true -> typedefof<BlobEqualLengthArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+        | false -> typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
 
-    override this.BlobTransposedSeqType =
-        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
+    override this.GetBlobTransposedSeqType(attrs) =
+        this.GetTransposedSeqType(attrs)
 
-    member this.EqualLengthTransposedSeqType =
-        printfn "I'm here now! EuqalLength of %O[]" elementType
-        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
-
-    member this.EqualLengthBlobTransposedSeqType =
-        typedefof<BlobArrayCompactSeq<_>>.MakeGenericType([| elementType |])
-
-    override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) =
-        let mtd = blobExpr.Type.GetMethod("CreateArrayCompactSeq").MakeGenericMethod([| elementType |])
+    override this.InvokeBlobTransposedSeqCreate(bmemType, blobExpr, hostExpr) =
+        let mtd =
+            match bmemType.GetGenericTypeDefinition().GUID = typedefof<BlobEqualLengthArrayCompactSeq<_>>.GUID with
+            | true -> blobExpr.Type.GetMethod("CreateEqualLengthArrayCompactSeq").MakeGenericMethod([| elementType |])
+            | false -> blobExpr.Type.GetMethod("CreateArrayCompactSeq").MakeGenericMethod([| elementType |])
         Expr.Call(blobExpr, mtd, hostExpr :: [])
 
-    override this.InvokeBlobTransposedSeqTrigger(bmemExpr) =
+    override this.InvokeBlobTransposedSeqTrigger(deviceType, bmemExpr) =
         bmemExpr
 
 type RecordEntity(package:Package, ty:Type) as this =
@@ -172,7 +170,9 @@ type RecordEntity(package:Package, ty:Type) as this =
         // blob.CreateXXX(Array.map (fun x -> x.Property) host) : obj
         let bmemExprs = (fields, transposedExprs) ||> List.map2 (fun field transposedExpr ->
             let entity = package.FindEntity(field.PropertyType)
-            entity.InvokeBlobTransposedSeqCreate(blobExpr, transposedExpr))
+            let attributes = field.GetCustomAttributes()
+            let bmemType = entity.GetBlobTransposedSeqType(attributes)
+            entity.InvokeBlobTransposedSeqCreate(bmemType, blobExpr, transposedExpr))
 
         // bseq.ctor(length, bmem1, bmem2, ...)
         let bseqCtor = bseqType.GetConstructors().[0]
@@ -183,7 +183,9 @@ type RecordEntity(package:Package, ty:Type) as this =
         let deviceExprs = fields |> List.map (fun field ->
             let bmemExpr = Expr.PropertyGet(bmemExpr, bmemExpr.Type.GetProperty(field.Name))
             let entity = package.FindEntity(field.PropertyType)
-            entity.InvokeBlobTransposedSeqTrigger(bmemExpr))
+            let attributes = field.GetCustomAttributes()
+            let deviceType = entity.GetTransposedSeqType(attributes)
+            entity.InvokeBlobTransposedSeqTrigger(deviceType, bmemExpr))
         let dseqCtor = dseqType.GetConstructors().[0]
         Expr.NewObject(dseqCtor, lengthExpr :: deviceExprs)
 
@@ -196,15 +198,8 @@ type RecordEntity(package:Package, ty:Type) as this =
         let fields = fields |> List.map (fun field ->
             let fieldName = sprintf "_%s" field.Name
             let entity = package.FindEntity(field.PropertyType)
-            let hasEqualLengthArrayAttribute =
-                let attributes = field.GetCustomAttributes(typeof<EqualLengthArrayAttribute>, false)
-                match attributes.Length with
-                | 0 -> false
-                | _ -> true
-            let fieldType = 
-                match hasEqualLengthArrayAttribute, entity with
-                | true, (:? ArrayEntity as entity) -> entity.EqualLengthTransposedSeqType
-                | _ -> entity.TransposedSeqType
+            let attributes = field.GetCustomAttributes()
+            let fieldType = entity.GetTransposedSeqType(attributes)
             ProvidedField(fieldName, fieldType))
         let fields = ProvidedField("_Length", typeof<int>) :: fields
         providedTransposedSeqType.AddMembers fields
@@ -240,7 +235,9 @@ type RecordEntity(package:Package, ty:Type) as this =
         // fields
         let fields = fields |> List.map (fun field ->
             let fieldName = sprintf "_%s" field.Name
-            let fieldType = package.FindEntity(field.PropertyType).BlobTransposedSeqType
+            let entity = package.FindEntity(field.PropertyType)
+            let attributes = field.GetCustomAttributes()
+            let fieldType = entity.GetBlobTransposedSeqType(attributes)
             ProvidedField(fieldName, fieldType))
         let fields = ProvidedField("_Length", typeof<int>) :: fields
         providedBlobTransposedSeqType.AddMembers fields
@@ -293,10 +290,10 @@ type RecordEntity(package:Package, ty:Type) as this =
 
         registry.Register(filter, create)
 
-    override this.TransposedSeqType = providedTransposedSeqType.Value :> Type
-    override this.BlobTransposedSeqType = providedBlobTransposedSeqType.Value :> Type
-    override this.InvokeBlobTransposedSeqCreate(blobExpr, hostExpr) = invokeBlobTransposedSeqCreate this.BlobTransposedSeqType blobExpr hostExpr
-    override this.InvokeBlobTransposedSeqTrigger(bmemExpr) = invokeBlobTransposedSeqTrigger this.TransposedSeqType bmemExpr
+    override this.GetTransposedSeqType(_) = providedTransposedSeqType.Value :> Type
+    override this.GetBlobTransposedSeqType(_) = providedBlobTransposedSeqType.Value :> Type
+    override this.InvokeBlobTransposedSeqCreate(bmemType, blobExpr, hostExpr) = invokeBlobTransposedSeqCreate bmemType blobExpr hostExpr
+    override this.InvokeBlobTransposedSeqTrigger(deviceType, bmemExpr) = invokeBlobTransposedSeqTrigger deviceType bmemExpr
 
     override this.Initialize() =
         fields |> List.iter (fun field -> package.InstallEntity(field.PropertyType))
@@ -309,6 +306,6 @@ type RecordEntity(package:Package, ty:Type) as this =
         printfn "%s* %s (%O)" indentstr this.Name this
 
     override this.Generate() =
-        if Util.hasAttribute typeof<GenGPUHelperAttribute> false ty then
+        if Util.AttributeHelper.HasAttribute(ty, typeof<GenGPUHelperAttribute>, false) then
             providedTransposedSeqType.Value |> ignore
             providedBlobTransposedSeqType.Value |> ignore

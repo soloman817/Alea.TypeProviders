@@ -74,8 +74,8 @@ type FloatNestedEqualLengthArray =
     {
         Offset1 : float
         Offset2 : int
-        [<EqualLengthArray>] Array1 : float[]
-        [<EqualLengthArray>] Array2 : int[]
+        [<EqualLengthArraySeq>] Array1 : float[]
+        Array2 : int[]
     }
 
     static member RandomArray(length:int) =
